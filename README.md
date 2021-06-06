@@ -2,28 +2,59 @@
 # shri-home-work_task-2
 
 
-## eslint-plugin-lodash-to-native
+## eslint-plugin-lodash-to-native\
 
-replace lodash map to native 
+
+## description:
+
+В библиотеке Lodash есть функция map. Она может использоваться как с массивами, так и с объектами.
+ Правило  находит использование функции `_.map` , например `_.map(collection, fn)` , и, если это возможно, предлагает заменить его на использование нативного `Array#map` .
+Фикс  заменяет код таким образом:
+добавляет проверку, что первый параметр является массивом (так как первый параметр может быть как массивом, так и объектом, а заменить надо только для массива)
+делает вызов нативного `Array#map` , если первый параметр - массив.
+делает вызов `_.map`  в противном случае
+
+
+ Например, код
+```
+return _.map(collection, fn);
+```
+меняет примерно на такой:
+
+```
+return (проверка, что collection - это массив) ?
+    collection.map(fn) :
+    _.map(collection, fn);
+```
+
+Если при вызове явно указан литерал массива, то фикс генирирует код без проверки, что параметр - это массив:
+```
+_.map([1, 2, 3], fn)
+```
+меняет на:
+```
+[1, 2, 3].map(fn)
+```
+Если можно точно определить, что _.map  вызывается не для массива, а для объекта, например `_.map({a: 1, b: 2}, fn)` , то правило не генирирует никаких сообщений и не предлагает замены (использование _.map()  с объектами считается валидным)
 
 ## Installation
 
-You'll first need to install [ESLint](http://eslint.org):
+- устанавливаем  [ESLint](http://eslint.org):
 
 ```
 $ npm i eslint --save-dev
 ```
 
-Next, install `eslint-plugin-lodash-to-native`:
+- устанавливаем наш плагин `eslint-plugin-lodash-to-native`:
 
 ```
-$ npm install eslint-plugin-lodash-to-native --save-dev
+$ npm install -S https://github.com/wof4/eslint-plugin-lodash-to-native.git
 ```
 
 
 ## Usage
 
-Add `lodash-to-native` to the plugins section of your `.eslintrc` configuration file. You can omit the `eslint-plugin-` prefix:
+Добавляем `lodash-to-native` в раздел плагинов файла конфигурации` .eslintrc`.
 
 ```json
 {
@@ -34,7 +65,7 @@ Add `lodash-to-native` to the plugins section of your `.eslintrc` configuration 
 ```
 
 
-Then configure the rules you want to use under the rules section.
+Затем настраиваем правила, которые хотим использовать, в разделе правил.
 
 ```json
 {
@@ -44,9 +75,16 @@ Then configure the rules you want to use under the rules section.
 }
 ```
 
-## Supported Rules
+### Scripts
 
-* Fill in provided rules here!
+В файле `package.json` в обьект `scripts` добавляем правила для запуска линтера и исправления ошибок c указанным именем файла для проверки например :
+
+```json
+ "scripts": {
+    "lint": "eslint ./index.js",
+    "lint:fix": "eslint ./index.js --fix"
+  }
+  ```
 
 
 
